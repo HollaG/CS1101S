@@ -36,17 +36,20 @@ display(unbiggie_size(bigCombo4)); // 4
 /* ----------- Question 3 ----------- */
 
 function is_biggie_size(combo) { 
-    return combo > 4;   
+    return combo > 4; 
+    // return combo >= 5;
 }
 
 // test
 display(is_biggie_size(bigCombo3)); // true
 display(is_biggie_size(combo3)); // false
 
+
 /* ----------- Question 4 ----------- */
 
-function combo_price(combo) { 
-    return is_biggie_size(combo) ? unbiggie_size(combo) * 1.17 + 0.50 : combo * 1.17;
+function combo_price(combo) {
+    return is_biggie_size(combo) ? 
+        unbiggie_size(combo) * 1.17 + 0.5 : combo * 1.17;
 }
 
 // test
@@ -86,7 +89,8 @@ display(last_combo(321)); // 1
 /* ----------- Question 8 ----------- */
 
 function other_combos(order) {
-    return (order - last_combo(order)) / 10;
+    // return (order - last_combo(order)) / 10;
+    return math_floor(order/10);
 }
 
 // test 
