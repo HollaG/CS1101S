@@ -48,8 +48,9 @@ display(is_biggie_size(combo3)); // false
 /* ----------- Question 4 ----------- */
 
 function combo_price(combo) {
-    return is_biggie_size(combo) ? 
-        unbiggie_size(combo) * 1.17 + 0.5 : combo * 1.17;
+    return is_biggie_size(combo) 
+        ? unbiggie_size(combo) * 1.17 + 0.5 
+        : combo * 1.17;
 }
 
 // test
@@ -90,7 +91,7 @@ display(last_combo(321)); // 1
 
 function other_combos(order) {
     // return (order - last_combo(order)) / 10;
-    return math_floor(order/10);
+    return math_floor(order / 10);
 }
 
 // test 
