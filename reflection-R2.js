@@ -7,6 +7,9 @@
 /*
     A step can be defined as (a) a function call, (b) an arithmetic operation, 
     (c) an evaluation, or some combination of the above.
+    
+    Count the number of evaluations or primitive operations.
+    The key is to be consistent.
 */
 
 /* ----------- Problem 3 ----------- */
@@ -16,16 +19,22 @@ function factorial(n) {
         : n * factorial(n - 1);
 }
 
-// factorial(5);
+factorial(5);
 /*
     a) n steps --> O(n) time
-    It takes 5 steps.
+    It takes 5 steps for n = 5.
+    
+    b+c+a) n steps --> O(2n-1) --> O(n) time
+    It takes 9 steps for n = 5.
 */
 
 
 /* ----------- Problem 4 ----------- */
 /*
-    4 deferred operations
+    4 deferred operations.
+    Look at the line with the most number of deferred operations.
+    
+    Space complexity: O(n-1) --> O(n)
 */
 
 /* ----------- Problem 5 ----------- */
@@ -41,7 +50,7 @@ function iter(product, counter, n) {
 // factorial2(5);
 
 /*
-    It also takes 5 steps.
+    It also takes 6 steps. (n+1)
 */
 
 /* ----------- Problem 6 ----------- */
