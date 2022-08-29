@@ -7,7 +7,7 @@ const pascal = (row, position) => {
         : pascal(row - 1, position - 1) + pascal(row - 1, position); 
 };
 
-display(pascal(4, 3));
+display(pascal(4, 3)); // 4
 
 pascal(3, 2) + pascal(3, 3);
 
@@ -26,11 +26,38 @@ pascal(1, 1) + pascal(1, 2);
     +
 pascal(0, 0)
     +
-pascal(0, 0)
+pascal(0, 0);
 
 1 + 1 
     + 
 1
     +
-1
+1;
+
+
+
+function sum(term, a, next, b) {
+    return a > b
+           ? 0
+           : term(a) + sum(term, next(a), next, b);
+}
+
+function inc(n) {
+    return n + 1;
+}
+
+function identity(x) {
+    return x;
+}
+
+function simpson(a, b, n, f) {
+    
+    return sum(f(a + ))
+    
+}
+
+
+
+
+
 
