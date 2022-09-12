@@ -1,39 +1,67 @@
+const LoL = list(list(1, 2), list(3, 4, 5, 6), null, list(7, 8, 9));
 
-
-function every_second(items) {
+function flatten_list(lst) {
     
-    // function recur(items, index) {
+    return accumulate((x, y) => {
+        return append(x, y);
         
+       
+    }, null, lst);
     
-    //     return is_null(items)
-    //         ? null
-    //         : index % 2 === 1
-    //         ? pair(head(items), recur(tail(items),  index +  1))
-    //         : recur(tail(items), index +  1);
-    // }
-        
-    // return recur(items, 0);
-    // const iter(items, result) => {
-        
-    //     return is_null(items)
-    //         ? result
-    //         : length(items) % 2 === 0 
-    //         ? iter(tail(items), pair(   )))
-    // };
-    
-    // return iter(items, null)
-    
-    
-    
-  
-    return is_null(tail(items)) || is_null(tail(tail(items)))
-        ? null
-        : pair(list_ref(items, 1), every_second(
-                                                     tail(tail(items))));
 }
 
-every_second(list("a", "x", "b", "y", "c", "z", "d", "1", "2"));
+display(LoL);
+display(flatten_list(LoL));
 
-// pair("x", pair("y", pair("z", null)));
+const my_tree = list(1, list(2, list(3, 4), 5), list(6, 7));
+    
+function tree_sum(tree) {
+    
+    return accumulate((x,y) => {
+       
+            if (is_list(x)) {
+                return y + tree_sum(x);
+            } else {
+                return y + x;
+                
+            }
+        
+        
+    }, 0, tree);
+    
+}
 
-// pair("a", restOfList)
+tree_sum(my_tree);
+
+
+
+
+/*function accumulate_tree(f, op, initial, tree) {
+     return accumulate((x, y) => {
+     
+        if (is_list(x)) {
+            return op(y, accumulate_tree(f, op, initial, x));
+        } else {
+            return op(y, f(x));
+        }
+        
+         
+     }, initial, tree);
+}*/
+
+function accumulate_tree(f, op, initial, tree) {
+     return accumulate((x, y) => is_list(x) 
+                           ? op(y, accumulate_tree(f, op, initial, x))
+                           : op(y, f(x))
+         
+     , initial, tree);
+}
+
+accumulate_tree(x => x, (x, y) => x + y, 0, my_tree);
+
+function count_data_items(tree) {
+ return accumulate_tree(x => 1, (x, y) => x + y, 0 , tree);
+}
+
+count_data_items(my_tree);
+
