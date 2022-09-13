@@ -65,3 +65,21 @@ function count_data_items(tree) {
 
 count_data_items(my_tree);
 
+
+const sums = (lst) => {
+    
+    
+    const helper = (lst, index, sum_even, sum_odd) => {
+        return is_null(lst) ?
+            list(sum_even, sum_odd)
+            : helper(tail(lst), index + 1, index % 2 === 0 ? sum_even + head(lst) : sum_even, index % 2 === 1 ? sum_odd + head(lst) : sum_odd);
+            
+    };
+    
+  return helper(lst, 0, 0, 0);
+    
+};
+
+sums(list(1, 2, 3, 4, 5));
+
+
