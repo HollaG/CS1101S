@@ -106,126 +106,177 @@ ev3_pause(1000);
 
 const colorSensor = ev3_colorSensor();
 const touchSensorLeft = ev3_touchSensor2();
-const touchSensorRight = ev3_touchSensor3();
+const touchSensorRight = ev3_touchSensor4();
+
+const gyroSensor = ev3_gyroSensor();
 
 const distanceSensor = ev3_ultrasonicSensor();
 const INTERVAL = 50;
-while (!ev3_touchSensorPressed(touchSensorRight) || !ev3_touchSensorPressed(touchSensorLeft)) {
- 
-    const dist = ev3_ultrasonicSensorDistance(distanceSensor) / 10;
-    display(dist);
-    
-    if (ev3_touchSensorPressed(touchSensorLeft)) {
-        // turn right
-        rotate(circum_robot, motorA, motorB, 10, true, 100);
-    } else if (ev3_touchSensorPressed(touchSensorRight)) {
-        // turn left
-        rotate(circum_robot, motorA, motorB, 10, false, 100);
-    } else {
-        if (dist < 15) {
-            // turn 
-            rotate(circum_robot, motorA, motorB, 10, false, 100);
-          
-        } else {
-            ev3_runForTime(motorA, INTERVAL, -200);
-            ev3_runForTime(motorB, INTERVAL, -200);
-            ev3_pause(INTERVAL);
-        }
-    }
+const speed = 600;
+function start_forward() {
+    ev3_motorSetSpeed(motorA, -speed);
+    ev3_motorSetSpeed(motorB, -speed);
+    ev3_motorSetStopAction(motorA, "brake");
+    ev3_motorSetStopAction(motorB, "brake");
+    ev3_motorStart(motorA);
+    ev3_motorStart(motorB);
 }
 
 
-// const BLACK_THRESHOLD = 20;
-// let prev_intensity = 0;
-// const INTERVAL = 50;
 
-// const DISTANCE_FROM_SENSOR_TO_AXLE_CM = 5.5;
-// while(!ev3_touchSensorPressed(touchSensor)) {
-//     display(ev3_reflectedLightIntensity(colorSensor));
+// start_forward();
+
+let dir = 0;
+
+// while (!ev3_touchSensorPressed(touchSensorRight)) {
+//     display(ev3_gyroSensorRate(gyroSensor), 'gyro');
 //     ev3_pause(100);
 // }
-// const DISTANCE_FROM_SENSOR_TO_AXLE_CM = 2.5;
-/* Mission Q2 */
-// while(!ev3_touchSensorPressed(touchSensor)) {   
-//     const intensity = ev3_reflectedLightIntensity(colorSensor);
-//     if (intensity > BLACK_THRESHOLD) {
-//         // line has ended
-//         // move forward x cm
-//         forward(motor_list, DISTANCE_FROM_SENSOR_TO_AXLE_CM / 100, -200);
-//         // rotate left
-//         rotate(circum_robot, motorA, motorB, 90, false, 100);
-//         display(ev3_reflectedLightIntensity(colorSensor));
-//         if (ev3_reflectedLightIntensity(colorSensor) > BLACK_THRESHOLD) {
-//             break;
-//         }
-//         // resume
-//     } else {
-//         // good, don't do anything
-//         ev3_runForTime(motorA, INTERVAL, -200);
-//         ev3_runForTime(motorB, INTERVAL, -200);
-//         ev3_pause(INTERVAL);
-//     }
-//     display(ev3_reflectedLightIntensity(colorSensor));
+
+let prevRate = 0;
+function check_is_stuck(prevRate, currentRate) {
+    display(prevRate, 'prevRate');
+    display(currentRate, 'currentRate');
+    const res = math_abs(prevRate - currentRate) < 5 && prevRate !== 0;
+    // && -90 < currentRate && currentRate < -80;
+    display(res, 'res');
+    return  res;
+}
+while (!ev3_touchSensorPressed(touchSensorRight) || !ev3_touchSensorPressed(touchSensorLeft)) {
+    const sensorRate = ev3_gyroSensorRate(gyroSensor);
     
+    const dist = ev3_ultrasonicSensorDistance(distanceSensor) / 10;
+   
+    
+    if (ev3_touchSensorPressed(touchSensorLeft)) {
+        // turn right
+        rotate(circum_robot, motorA, motorB, 25, true, speed);
+        // if (check_is_stuck(prevRate, sensorRate)) {
+        //     forward(motor_list, -0.15, speed);
+        //     continue;
+        // }
+        dir = 1;
+        start_forward();
+    } else if (ev3_touchSensorPressed(touchSensorRight)) {
+        // turn left
+        rotate(circum_robot, motorA, motorB, 25, false, speed);
+        // if (check_is_stuck(prevRate, sensorRate)) {
+        //     forward(motor_list, -0.15, speed);
+        //     continue;
+        // }
+        
+        dir = -1;
+        start_forward();
+    } else {
+        
+        if ((dist < 15 && dir === 0) || (dist < 25 && dir !== 0)) {
+            
+            // roll a random direction
+            // 1: clockwise
+            // -1: anticlockwise
+            
+            if (dir === 0) {
+                // the robot hasn't just come from turning
+                dir = math_random() > 0.5 ? 1 : -1;
+            }
+            
+            display(dir);
+            ev3_motorStop(motorA);
+            ev3_motorStop(motorB);
+            
+            if (dir === -1) {
+                ev3_motorSetSpeed(motorA, speed);
+                ev3_motorSetSpeed(motorB, -speed);
+                
+            } else {
+                ev3_motorSetSpeed(motorA, -speed);
+                ev3_motorSetSpeed(motorB, speed);
+               
+            }
+            
+            ev3_motorStart(motorA);
+            ev3_motorStart(motorB);
+            
+            // if (check_is_stuck(prevRate, sensorRate)) {
+            //     forward(motor_list, -0.15, speed);
+            //     continue;
+            // }
+             prevRate = sensorRate;
+        } else {
+            prevRate = 0;
+            start_forward();
+            dir = 0;
+           
+        }
+        
+        // if (dist < 10) {
+        //     // turn 
+        //     // rotate(circum_robot, motorA, motorB, 10, false, 200);
+        //     // start_forward();
+            
+        //     // stop
+        //     ev3_motorStop(motorA);
+        //     ev3_motorStop(motorB);
+        //     // scan left
+        //     rotate(circum_robot, motorA, motorB, 45, false, 200);
+        //     // get distance left
+        //     let dist_left = ev3_ultrasonicSensorDistance(distanceSensor) / 10;
+        
+        //     // scan right
+        //      rotate(circum_robot, motorA, motorB, 45, true, 200);
+        //     // get distance right
+        //     let dist_right = ev3_ultrasonicSensorDistance(distanceSensor) / 10;
+            
+        //     display(dist_right, "right");
+        //     display(dist_left, "left");
+        //     // go X direction
+        //     if (dist_left > dist_right) {
+        //         rotate(circum_robot, motorA, motorB, 90, false, 200);
+        //         start_forward();
+        //     } else {
+        //         start_forward();
+        //     }
+            
+          
+        // } else if (dist === 255) {
+        //     // reverse for a bit
+        //     forward(motor_list, -0.05, 200);
+        //     rotate(circum_robot, motorA, motorB, 25, true, 200);
+            
+        // } else {}
+    }
+    
+    
+    
+}
+
+
+// while (!ev3_touchSensorPressed(touchSensorRight) || !ev3_touchSensorPressed(touchSensorLeft)) {
+ 
+//     const dist = ev3_ultrasonicSensorDistance(distanceSensor) / 10;
+//     display(dist);
+    
+//     if (ev3_touchSensorPressed(touchSensorLeft)) {
+//         // turn right
+//         rotate(circum_robot, motorA, motorB, 25, true, 100);
+//     } else if (ev3_touchSensorPressed(touchSensorRight)) {
+//         // turn left
+//         rotate(circum_robot, motorA, motorB, 25, false, 100);
+//     } else {
+//         if (dist < 15) {
+//             // turn 
+//             rotate(circum_robot, motorA, motorB, 10, false, 100);
+          
+//         } else {
+//             ev3_runForTime(motorA, INTERVAL, -200);
+//             ev3_runForTime(motorB, INTERVAL, -200);
+//             ev3_pause(INTERVAL);
+//         }
+//     }
 // }
 
-/* Mission Q3 */
-// let ended = false;
-// let degrees_max = 100;
-// while(!ev3_touchSensorPressed(touchSensor) && !ended) {   
-//     const intensity = ev3_reflectedLightIntensity(colorSensor);
-    
-//     // Idea: If is white, move forward,
-//     // rotate slowly left up to 90degrees, checking if there is any black
-//     // if there is, stop rotating and move in that direction
-//     // if not, after 90degrees, rotate 180 degrees right, checking if there is any black
-//     // if not, stop
-    
-//     if (intensity > BLACK_THRESHOLD) {
-//         forward(motor_list, DISTANCE_FROM_SENSOR_TO_AXLE_CM / 100, -200);
-//         let found_black_line_left = false;
-//         let gave_up_left = false;
-//         let rotation_angle = 0;
-//         while(!found_black_line_left && !gave_up_left) {
-//             display(ev3_reflectedLightIntensity(colorSensor));
-//             rotate(circum_robot, motorA, motorB, 2, false, 100);
-//             rotation_angle = rotation_angle - 2;
-//             if (ev3_reflectedLightIntensity(colorSensor) < BLACK_THRESHOLD) {
-//                 found_black_line_left = true;
-//                 break;
-//             }
-//             if (rotation_angle <= -degrees_max) {
-//                 // switch to rotating right
-//                 gave_up_left = true;
-//                 rotate(circum_robot, motorA, motorB, math_abs(rotation_angle), true, 100);
-//                 rotation_angle = 0;
-//             }
-//         }
-//         while(gave_up_left) {
-//             display(ev3_reflectedLightIntensity(colorSensor));
-//             rotate(circum_robot, motorA, motorB, 2, true, 100);
-//             rotation_angle = rotation_angle + 2;
-//             if (ev3_reflectedLightIntensity(colorSensor) < BLACK_THRESHOLD) {
-//                 // let the loops carry on
-//                 break;
-//             }
-//             if (rotation_angle >= degrees_max) {
-//                 // rotate back to start and stop
-//                 rotate(circum_robot, motorA, motorB, rotation_angle, false, 100);
-//                 ended = true;
-//                 break;
-//             }
-//         }
-        
-//     } else {
-//         // good., don't do anything
-//         ev3_runForTime(motorA, INTERVAL, -200);
-//         ev3_runForTime(motorB, INTERVAL, -200);
-//         ev3_pause(INTERVAL);
-//     }
-    
-//     display(ev3_reflectedLightIntensity(colorSensor));
-// }
+
+
 
 
 
